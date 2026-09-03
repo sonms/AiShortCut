@@ -23,18 +23,10 @@ data class HfRepoDataDto(
     val lastModified: String? = null
 )
 
-data class TrendingModel(
-    val id: String,
-    val author: String?,
-    val likes: Int,
-    val downloads: Int,
-    val pipelineTag: String?
-)
-
 fun HfRepoDataDto.toDomain() = TrendingModel(
     id = id,
     author = author,
     likes = likes,
     downloads = downloads,
-    pipelineTag = pipelineTag
+    pipelineTag = pipelineTag,
 )
