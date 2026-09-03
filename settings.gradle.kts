@@ -30,6 +30,22 @@ dependencyResolutionManagement {
 
 include(":androidApp")
 include(":shared")
-include(":core:common")
-include(":data:home")
-include(":presentation:home")
+
+// core
+include(
+    ":core:common",
+    ":core:network",
+    ":core:designsystem"
+)
+
+// data
+include(
+    ":data:home",
+    ":data:hfTrending"
+)
+
+// presentation
+include(
+    ":presentation:main",
+    ":presentation:home"
+)

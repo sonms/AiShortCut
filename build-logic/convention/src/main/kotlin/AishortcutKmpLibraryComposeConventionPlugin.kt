@@ -38,6 +38,16 @@ class AishortcutKmpLibraryComposeConventionPlugin : Plugin<Project> {
                     api(libs.findLibrary("compose-uiToolingPreview").get())
                     api(libs.findLibrary("androidx-lifecycle-viewmodelCompose").get())
                     api(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+                    // DI: every presentation module resolves its ViewModels/deps
+                    // through Koin, so the compose entry points need these on the
+                    // API surface (koinViewModel(), KoinApplication { }).
+                    api(libs.findLibrary("koin-compose").get())
+                    api(libs.findLibrary("koin-compose-viewmodel").get())
+                    api(libs.findLibrary("koin-compose-viewmodel-navigation").get())
+                    // Navigation + the core Material icon set, shared by every
+                    // screen module (bottom nav, in-screen nav, tab icons).
+                    api(libs.findLibrary("jetbrains-navigation-compose").get())
+                    api(libs.findLibrary("compose-material-icons-core").get())
                 }
             }
 
