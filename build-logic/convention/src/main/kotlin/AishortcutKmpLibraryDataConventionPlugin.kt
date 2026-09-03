@@ -26,6 +26,12 @@ class AishortcutKmpLibraryDataConventionPlugin : Plugin<Project> {
                 sourceSets.iosMain.dependencies {
                     implementation(libs.findLibrary("ktor-client-darwin").get())
                 }
+                // Every data module tests its repositories against a Ktor
+                // MockEngine, so these belong here rather than per-module.
+                sourceSets.commonTest.dependencies {
+                    implementation(libs.findLibrary("ktor-client-mock").get())
+                    implementation(libs.findLibrary("kotlinx-coroutines-test").get())
+                }
             }
         }
     }
