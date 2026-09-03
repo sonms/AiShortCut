@@ -1,6 +1,6 @@
 package com.sonms.aishortcut.presentation.main
 
-import com.sonms.aishortcut.data.home.HomeRepository
+import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
 import com.sonms.aishortcut.presentation.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -9,6 +9,6 @@ import org.koin.dsl.module
 // (hfTrendingModule, savedModule, ...) once the list is long enough to be
 // hard to scan -- not before.
 val appModule = module {
-    single { HomeRepository() }
+    single { HfTrendingRepository() }
     viewModel { HomeViewModel(get()) }
 }

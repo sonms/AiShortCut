@@ -11,7 +11,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
-            implementation(project(":data:home"))
+            implementation(project(":data:hfTrending"))
         }
     }
 }
