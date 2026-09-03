@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
 import com.sonms.aishortcut.data.hftrending.TrendingModel
 import kotlinx.coroutines.CancellationException
@@ -34,6 +35,7 @@ class HomeViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                Logger.withTag("HomeViewModel").e(e) { "trending model load failed" }
                 HomeUiState.Error(e.message ?: "Couldn't load trending models")
             }
         }
