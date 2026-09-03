@@ -18,6 +18,7 @@ class AishortcutKmpLibraryDataConventionPlugin : Plugin<Project> {
                     implementation(libs.findLibrary("kotlinx-serialization-json").get())
                     implementation(libs.findLibrary("ktor-client-core").get())
                     implementation(libs.findLibrary("ktor-client-contentNegotiation").get())
+                    implementation(libs.findLibrary("ktor-client-logging").get())
                     implementation(libs.findLibrary("ktor-serialization-kotlinxJson").get())
                 }
                 sourceSets.androidMain.dependencies {

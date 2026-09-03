@@ -57,6 +57,12 @@ class AishortcutKmpLibraryConventionPlugin : Plugin<Project> {
                     }
                 }
 
+                sourceSets.commonMain.dependencies {
+                    // App-wide logging (Kermit = Timber for KMP). api, not
+                    // implementation: every module logs, and the platform shells
+                    // configure it once at startup.
+                    api(libs.findLibrary("kermit").get())
+                }
                 sourceSets.commonTest.dependencies {
                     implementation(libs.findLibrary("kotlin-test").get())
                 }
