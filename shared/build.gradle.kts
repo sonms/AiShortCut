@@ -43,7 +43,7 @@ kotlin {
         commonMain.dependencies {
             // api: androidApp/iosApp only depend on :shared, so every
             // feature/core module gathered here must stay visible to them.
-            api(project(":presentation:home"))
+            api(project(":presentation:main"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

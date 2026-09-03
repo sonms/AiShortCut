@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.sonms.aishortcut.data.home.HomeRepository
 
 class HomeViewModel(
-    private val repository: HomeRepository = HomeRepository()
+    private val repository: HomeRepository,
 ) : ViewModel() {
     var visitCount by mutableStateOf(0)
         private set

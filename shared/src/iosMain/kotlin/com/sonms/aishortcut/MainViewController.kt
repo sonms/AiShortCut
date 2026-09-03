@@ -1,6 +1,6 @@
 package com.sonms.aishortcut
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.sonms.aishortcut.presentation.home.App
+import com.sonms.aishortcut.presentation.main.MainApp
 
-fun MainViewController() = ComposeUIViewController { App() }
+fun MainViewController() = ComposeUIViewController { MainApp() }
