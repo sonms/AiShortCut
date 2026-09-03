@@ -12,6 +12,7 @@ kotlin {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
             implementation(project(":data:hfTrending"))
+            implementation(project(":data:githubTrending"))
         }
     }
 }

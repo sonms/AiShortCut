@@ -1,5 +1,6 @@
 package com.sonms.aishortcut.presentation.main
 
+import com.sonms.aishortcut.data.githubtrending.GithubTrendingRepository
 import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
 import com.sonms.aishortcut.presentation.home.HomeViewModel
 import org.koin.core.module.dsl.viewModel
@@ -10,5 +11,6 @@ import org.koin.dsl.module
 // hard to scan -- not before.
 val appModule = module {
     single { HfTrendingRepository() }
-    viewModel { HomeViewModel(get()) }
+    single { GithubTrendingRepository() }
+    viewModel { HomeViewModel(get(), get()) }
 }

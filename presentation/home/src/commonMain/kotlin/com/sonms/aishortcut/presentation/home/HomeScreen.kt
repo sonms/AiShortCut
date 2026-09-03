@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sonms.aishortcut.core.designsystem.Spacing
+import com.sonms.aishortcut.data.githubtrending.TrendingRepo
 import com.sonms.aishortcut.data.hftrending.TrendingModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -44,38 +47,37 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             }
         }
 
-        is HomeUiState.Content -> TrendingList(state.models)
+        is HomeUiState.Content -> HomeFeed(state.models, state.repos)
     }
 }
 
 @Composable
-private fun TrendingList(models: List<TrendingModel>) {
+private fun HomeFeed(models: List<TrendingModel>, repos: List<TrendingRepo>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.md),
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        item {
-            Text(
-                "Trending models",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = Spacing.sm),
-            )
-        }
-        items(models, key = { it.id }) { TrendingModelCard(it) }
+        item { SectionHeader("Trending models") }
+        items(models, key = { "model-${it.id}" }) { TrendingModelCard(it) }
+
+        item { SectionHeader("Trending AI repos") }
+        items(repos, key = { "repo-${it.id}" }) { TrendingRepoCard(it) }
     }
 }
 
 @Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.xs),
+    )
+}
+
+@Composable
 private fun TrendingModelCard(model: TrendingModel) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(CardShape)
-            .border(1.dp, MaterialTheme.colorScheme.outline, CardShape)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(Spacing.md),
-    ) {
+    FeedCard {
         Text(model.id, style = MaterialTheme.typography.titleMedium)
         model.pipelineTag?.let { tag ->
             Spacer(Modifier.height(Spacing.xs))
@@ -92,6 +94,45 @@ private fun TrendingModelCard(model: TrendingModel) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+}
+
+@Composable
+private fun TrendingRepoCard(repo: TrendingRepo) {
+    FeedCard {
+        Text(repo.fullName, style = MaterialTheme.typography.titleMedium)
+        repo.description?.let { description ->
+            Spacer(Modifier.height(Spacing.xs))
+            Text(
+                description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Spacer(Modifier.height(Spacing.sm))
+        Text(
+            buildString {
+                append("stars ${repo.stars} · forks ${repo.forks}")
+                repo.language?.let { append(" · $it") }
+            },
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun FeedCard(content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .border(1.dp, MaterialTheme.colorScheme.outline, CardShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(Spacing.md),
+        content = content,
+    )
 }
 
 @Composable
