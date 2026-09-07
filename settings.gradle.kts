@@ -53,5 +53,6 @@ include(
     ":presentation:main",
     ":presentation:home",
     ":presentation:discover",
-    ":presentation:saved"
+    ":presentation:saved",
+    ":presentation:detail"
 )

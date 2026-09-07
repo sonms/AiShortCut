@@ -1,5 +1,6 @@
 package com.sonms.aishortcut.presentation.discover
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +30,8 @@ import com.sonms.aishortcut.core.designsystem.SectionHeader
 import com.sonms.aishortcut.core.designsystem.Spacing
 import com.sonms.aishortcut.data.githubtrending.TrendingRepo
 import com.sonms.aishortcut.data.hftrending.TrendingModel
+import com.sonms.aishortcut.presentation.detail.DetailSheet
+import com.sonms.aishortcut.presentation.detail.DetailTarget
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -67,6 +73,7 @@ private fun Results(content: DiscoverUiState.Content, query: String) {
         if (q.isEmpty()) content.repos
         else content.repos.filter { it.matches(q) }
     }
+    var detail by remember { mutableStateOf<DetailTarget?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -77,11 +84,19 @@ private fun Results(content: DiscoverUiState.Content, query: String) {
 
         if (models.isNotEmpty()) {
             item { SectionHeader("Models") }
-            items(models, key = { "model-${it.id}" }) { ModelRow(it) }
+            items(models, key = { "model-${it.id}" }) { model ->
+                FeedCard(modifier = Modifier.clickable { detail = DetailTarget.Model(model) }) {
+                    ModelRow(model)
+                }
+            }
         }
         if (repos.isNotEmpty()) {
             item { SectionHeader("Repos") }
-            items(repos, key = { "repo-${it.id}" }) { RepoRow(it) }
+            items(repos, key = { "repo-${it.id}" }) { repo ->
+                FeedCard(modifier = Modifier.clickable { detail = DetailTarget.Repo(repo) }) {
+                    RepoRow(repo)
+                }
+            }
         }
         if (models.isEmpty() && repos.isEmpty()) {
             item {
@@ -93,6 +108,10 @@ private fun Results(content: DiscoverUiState.Content, query: String) {
                 )
             }
         }
+    }
+
+    detail?.let { target ->
+        DetailSheet(target = target, onDismiss = { detail = null })
     }
 }
 
@@ -119,41 +138,37 @@ private fun BenchmarkPlaceholder() {
 
 @Composable
 private fun ModelRow(model: TrendingModel) {
-    FeedCard {
-        Text(model.id, style = MaterialTheme.typography.titleMedium)
-        model.pipelineTag?.let {
-            Spacer(Modifier.height(Spacing.xs))
-            Text(
-                it,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+    Text(model.id, style = MaterialTheme.typography.titleMedium)
+    model.pipelineTag?.let {
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            it,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
 @Composable
 private fun RepoRow(repo: TrendingRepo) {
-    FeedCard {
-        Text(repo.fullName, style = MaterialTheme.typography.titleMedium)
-        repo.description?.let {
-            Spacer(Modifier.height(Spacing.xs))
-            Text(
-                it,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        if (repo.topics.isNotEmpty()) {
-            Spacer(Modifier.height(Spacing.xs))
-            Text(
-                repo.topics.joinToString(" · "),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+    Text(repo.fullName, style = MaterialTheme.typography.titleMedium)
+    repo.description?.let {
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            it,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+    if (repo.topics.isNotEmpty()) {
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            repo.topics.joinToString(" · "),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
