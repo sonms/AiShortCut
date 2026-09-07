@@ -16,6 +16,6 @@ val appModule = module {
     single<Translator> { createTranslator() }
     single { HfTrendingRepository() }
     single { GithubTrendingRepository() }
-    single { NewsFeedRepository(translator = get()) }
-    viewModel { HomeViewModel(get(), get(), get()) }
+    single { NewsFeedRepository() }
+    viewModel { HomeViewModel(get(), get(), get(), get()) }
 }

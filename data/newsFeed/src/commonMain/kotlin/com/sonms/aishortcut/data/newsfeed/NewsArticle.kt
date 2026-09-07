@@ -12,9 +12,4 @@ data class NewsArticle(
     // Raw date string as the feed publishes it (RFC-822 for RSS, ISO-8601 for
     // Atom). Left unparsed until something actually needs to sort or format it.
     val publishedAt: String?,
-    // Korean translations, filled in by NewsFeedRepository.translate(). Null
-    // means "not translated yet, or translation unavailable" -- callers fall
-    // back to the original text.
-    val titleKo: String? = null,
-    val summaryKo: String? = null,
 )

@@ -11,6 +11,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
+            implementation(project(":core:translate"))
             implementation(project(":data:hfTrending"))
             implementation(project(":data:githubTrending"))
             implementation(project(":data:newsFeed"))

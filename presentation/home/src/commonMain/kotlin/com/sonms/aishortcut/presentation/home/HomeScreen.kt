@@ -50,15 +50,25 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             }
         }
 
-        is HomeUiState.Content -> Column(Modifier.fillMaxSize()) {
-            LanguageToggle(
-                selected = viewModel.language,
-                onSelect = { viewModel.language = it },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(horizontal = Spacing.md, vertical = Spacing.sm),
-            )
-            HomeFeed(state, viewModel.language)
+        is HomeUiState.Content -> {
+            val language = viewModel.language
+            val localize: (String?) -> String? = { text ->
+                when {
+                    text == null -> null
+                    language == FeedLanguage.Korean -> viewModel.translations[text] ?: text
+                    else -> text
+                }
+            }
+            Column(Modifier.fillMaxSize()) {
+                LanguageToggle(
+                    selected = language,
+                    onSelect = { viewModel.language = it },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+                )
+                HomeFeed(state, localize)
+            }
         }
     }
 }
@@ -81,7 +91,7 @@ private fun LanguageToggle(
 }
 
 @Composable
-private fun HomeFeed(content: HomeUiState.Content, language: FeedLanguage) {
+private fun HomeFeed(content: HomeUiState.Content, localize: (String?) -> String?) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.md),
@@ -91,11 +101,11 @@ private fun HomeFeed(content: HomeUiState.Content, language: FeedLanguage) {
         items(content.models, key = { "model-${it.id}" }) { TrendingModelCard(it) }
 
         item { SectionHeader("Trending AI repos") }
-        items(content.repos, key = { "repo-${it.id}" }) { TrendingRepoCard(it) }
+        items(content.repos, key = { "repo-${it.id}" }) { TrendingRepoCard(it, localize) }
 
         if (content.articles.isNotEmpty()) {
             item { SectionHeader("AI news") }
-            items(content.articles, key = { "news-${it.link}" }) { NewsCard(it, language) }
+            items(content.articles, key = { "news-${it.link}" }) { NewsCard(it, localize) }
         }
     }
 }
@@ -131,10 +141,10 @@ private fun TrendingModelCard(model: TrendingModel) {
 }
 
 @Composable
-private fun TrendingRepoCard(repo: TrendingRepo) {
+private fun TrendingRepoCard(repo: TrendingRepo, localize: (String?) -> String?) {
     FeedCard {
         Text(repo.fullName, style = MaterialTheme.typography.titleMedium)
-        repo.description?.let { description ->
+        localize(repo.description)?.let { description ->
             Spacer(Modifier.height(Spacing.xs))
             Text(
                 description,
@@ -157,12 +167,10 @@ private fun TrendingRepoCard(repo: TrendingRepo) {
 }
 
 @Composable
-private fun NewsCard(article: NewsArticle, language: FeedLanguage) {
-    val korean = language == FeedLanguage.Korean
-    val title = if (korean) article.titleKo ?: article.title else article.title
-    val summary = if (korean) article.summaryKo ?: article.summary else article.summary
+private fun NewsCard(article: NewsArticle, localize: (String?) -> String?) {
+    val summary = localize(article.summary).orEmpty()
     FeedCard {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(localize(article.title).orEmpty(), style = MaterialTheme.typography.titleMedium)
         if (summary.isNotBlank()) {
             Spacer(Modifier.height(Spacing.xs))
             Text(
