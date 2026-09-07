@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.sonms.aishortcut.core.designsystem.Spacing
 import com.sonms.aishortcut.data.githubtrending.TrendingRepo
 import com.sonms.aishortcut.data.hftrending.TrendingModel
+import com.sonms.aishortcut.data.newsfeed.NewsArticle
 import org.koin.compose.viewmodel.koinViewModel
 
 // DESIGN.md: card corner 16dp, 1dp outline border instead of elevation,
@@ -47,22 +50,53 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             }
         }
 
-        is HomeUiState.Content -> HomeFeed(state.models, state.repos)
+        is HomeUiState.Content -> Column(Modifier.fillMaxSize()) {
+            LanguageToggle(
+                selected = viewModel.language,
+                onSelect = { viewModel.language = it },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = Spacing.md, vertical = Spacing.sm),
+            )
+            HomeFeed(state, viewModel.language)
+        }
     }
 }
 
 @Composable
-private fun HomeFeed(models: List<TrendingModel>, repos: List<TrendingRepo>) {
+private fun LanguageToggle(
+    selected: FeedLanguage,
+    onSelect: (FeedLanguage) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+        FeedLanguage.entries.forEach { language ->
+            FilterChip(
+                selected = selected == language,
+                onClick = { onSelect(language) },
+                label = { Text(language.label, style = MaterialTheme.typography.labelMedium) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeFeed(content: HomeUiState.Content, language: FeedLanguage) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.md),
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
         item { SectionHeader("Trending models") }
-        items(models, key = { "model-${it.id}" }) { TrendingModelCard(it) }
+        items(content.models, key = { "model-${it.id}" }) { TrendingModelCard(it) }
 
         item { SectionHeader("Trending AI repos") }
-        items(repos, key = { "repo-${it.id}" }) { TrendingRepoCard(it) }
+        items(content.repos, key = { "repo-${it.id}" }) { TrendingRepoCard(it) }
+
+        if (content.articles.isNotEmpty()) {
+            item { SectionHeader("AI news") }
+            items(content.articles, key = { "news-${it.link}" }) { NewsCard(it, language) }
+        }
     }
 }
 
@@ -116,6 +150,32 @@ private fun TrendingRepoCard(repo: TrendingRepo) {
                 append("stars ${repo.stars} · forks ${repo.forks}")
                 repo.language?.let { append(" · $it") }
             },
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun NewsCard(article: NewsArticle, language: FeedLanguage) {
+    val korean = language == FeedLanguage.Korean
+    val title = if (korean) article.titleKo ?: article.title else article.title
+    val summary = if (korean) article.summaryKo ?: article.summary else article.summary
+    FeedCard {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        if (summary.isNotBlank()) {
+            Spacer(Modifier.height(Spacing.xs))
+            Text(
+                summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Spacer(Modifier.height(Spacing.sm))
+        Text(
+            article.source,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

@@ -17,6 +17,8 @@ kotlin {
             // every data module whose types it binds.
             implementation(project(":data:hfTrending"))
             implementation(project(":data:githubTrending"))
+            implementation(project(":data:newsFeed"))
+            implementation(project(":core:translate"))
         }
     }
 }

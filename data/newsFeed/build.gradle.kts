@@ -11,6 +11,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:common"))
             implementation(project(":core:network"))
+            implementation(project(":core:translate"))
         }
     }
 }
