@@ -35,7 +35,8 @@ include(":shared")
 include(
     ":core:common",
     ":core:network",
-    ":core:designsystem"
+    ":core:designsystem",
+    ":core:translate"
 )
 
 // data
