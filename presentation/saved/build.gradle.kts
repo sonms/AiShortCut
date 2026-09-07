@@ -4,18 +4,15 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.sonms.aishortcut.presentation.home"
+        namespace = "com.sonms.aishortcut.presentation.saved"
     }
 
     sourceSets {
         commonMain.dependencies {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
-            implementation(project(":core:translate"))
-            implementation(project(":data:hfTrending"))
-            implementation(project(":data:githubTrending"))
-            implementation(project(":data:newsFeed"))
             implementation(project(":data:saved"))
+            implementation(project(":data:newsFeed"))
         }
     }
 }

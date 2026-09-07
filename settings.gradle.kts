@@ -44,11 +44,14 @@ include(
     ":data:home",
     ":data:hfTrending",
     ":data:githubTrending",
-    ":data:newsFeed"
+    ":data:newsFeed",
+    ":data:saved"
 )
 
 // presentation
 include(
     ":presentation:main",
-    ":presentation:home"
+    ":presentation:home",
+    ":presentation:discover",
+    ":presentation:saved"
 )
