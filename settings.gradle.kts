@@ -42,7 +42,8 @@ include(
 include(
     ":data:home",
     ":data:hfTrending",
-    ":data:githubTrending"
+    ":data:githubTrending",
+    ":data:newsFeed"
 )
 
 // presentation
