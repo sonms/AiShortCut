@@ -11,8 +11,13 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
+    // DRAFT wiring -- see AppleTranslator.swift. Verify on a device.
+    @StateObject private var translator = AppleTranslator()
+
     var body: some View {
         ComposeView()
             .ignoresSafeArea()
+            .translationBridge(translator)
+            .onAppear { IosTranslatorHolder.shared.backend = translator }
     }
 }

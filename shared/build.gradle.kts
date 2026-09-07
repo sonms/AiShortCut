@@ -15,6 +15,10 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+            // Surface the translate bridge types (IosTranslatorHolder /
+            // IosTranslatorBackend) in the umbrella framework so iosApp's Swift
+            // can register the Apple Translation backend.
+            export(project(":core:translate"))
         }
     }
     
@@ -44,6 +48,8 @@ kotlin {
             // api: androidApp/iosApp only depend on :shared, so every
             // feature/core module gathered here must stay visible to them.
             api(project(":presentation:main"))
+            // Exported into the iOS framework above; api so the export resolves.
+            api(project(":core:translate"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
