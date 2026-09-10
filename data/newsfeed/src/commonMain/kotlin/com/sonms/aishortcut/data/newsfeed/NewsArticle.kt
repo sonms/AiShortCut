@@ -12,4 +12,7 @@ data class NewsArticle(
     // Raw date string as the feed publishes it (RFC-822 for RSS, ISO-8601 for
     // Atom). Left unparsed until something actually needs to sort or format it.
     val publishedAt: String?,
+    // Topic tags, for keyword clustering on Home. HF daily papers carry these in
+    // `ai_keywords`; the arXiv/RSS parser has no equivalent and leaves it empty.
+    val keywords: List<String> = emptyList(),
 )
