@@ -15,6 +15,7 @@ import com.sonms.aishortcut.data.hftrending.TrendingModel
 import com.sonms.aishortcut.data.newsfeed.NewsArticle
 import com.sonms.aishortcut.data.newsfeed.NewsFeedRepository
 import com.sonms.aishortcut.data.saved.SavedRepository
+import com.sonms.aishortcut.presentation.feed.FeedLanguage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -41,14 +42,6 @@ data class DailyDigest(
     val articles: List<NewsArticle>,
 )
 
-// Which language the feed shows for free-text content (news, repo descriptions).
-// English is always the original; Korean falls back to the original per string
-// until its translation is in `translations`.
-enum class FeedLanguage(val label: String) {
-    English("EN"),
-    Korean("한국어"),
-}
-
 class HomeViewModel(
     private val hfTrending: HfTrendingRepository,
     private val githubTrending: GithubTrendingRepository,
@@ -61,6 +54,10 @@ class HomeViewModel(
 
     // Pure view state, no invariant -- the screen sets it directly.
     var language by mutableStateOf(FeedLanguage.Korean)
+
+    // Selected trending-keyword chip, or null for the unfiltered digest feed.
+    // Pure view state; cleared on reload.
+    var selectedKeyword by mutableStateOf<String?>(null)
 
     // original English string -> Korean. Session-scoped cache; survives feed
     // reloads and language toggles, only genuinely new strings hit the translator.
@@ -75,10 +72,13 @@ class HomeViewModel(
         load()
     }
 
-    fun toggleSaved(article: NewsArticle) = saved.toggle(article)
+    fun toggleSaved(article: NewsArticle) {
+        viewModelScope.launch { saved.toggle(article) }
+    }
 
     fun load() {
         uiState = HomeUiState.Loading
+        selectedKeyword = null
         viewModelScope.launch {
             val content = try {
                 // ponytail: all-or-nothing. If one source turns flaky enough to
