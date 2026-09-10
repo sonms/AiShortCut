@@ -1,28 +1,42 @@
 package com.sonms.aishortcut.data.saved
 
+import com.sonms.aishortcut.core.database.SavedArticleDao
+import com.sonms.aishortcut.core.database.SavedArticleEntity
 import com.sonms.aishortcut.data.newsfeed.NewsArticle
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-// ponytail: in-memory, session-only. Bookmarks vanish on app restart until the
-// Room migration lands -- that's the piece that gives this a disk backing and
-// the tag organisation DESIGN/CLAUDE call for. Keep this the single seam the
-// rest of the app talks to so swapping the storage is a one-file change.
-class SavedRepository {
+// Room-backed bookmarks. The rest of the app talks to this; the DAO and the
+// AiShortCutDatabase behind it live in core:database. Swapping storage stays a
+// change to this one file plus core:database.
+class SavedRepository(
+    private val dao: SavedArticleDao,
+) {
+    val articles: Flow<List<NewsArticle>> =
+        dao.observeAll().map { rows -> rows.map(SavedArticleEntity::toDomain) }
 
-    private val _articles = MutableStateFlow<List<NewsArticle>>(emptyList())
-    val articles: StateFlow<List<NewsArticle>> = _articles.asStateFlow()
-
-    fun isSaved(link: String): Boolean = _articles.value.any { it.link == link }
-
-    // Save if absent, remove if present. Newest save first.
-    fun toggle(article: NewsArticle) = _articles.update { current ->
-        if (current.any { it.link == article.link }) {
-            current.filterNot { it.link == article.link }
+    // Save if absent, remove if present.
+    suspend fun toggle(article: NewsArticle) {
+        if (dao.exists(article.link)) {
+            dao.deleteByLink(article.link)
         } else {
-            listOf(article) + current
+            dao.insert(article.toEntity())
         }
     }
 }
+
+internal fun SavedArticleEntity.toDomain() = NewsArticle(
+    title = title,
+    summary = summary,
+    link = link,
+    source = source,
+    publishedAt = publishedAt,
+)
+
+internal fun NewsArticle.toEntity() = SavedArticleEntity(
+    link = link,
+    title = title,
+    summary = summary,
+    source = source,
+    publishedAt = publishedAt,
+)

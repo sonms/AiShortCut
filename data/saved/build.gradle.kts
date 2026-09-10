@@ -10,7 +10,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":core:common"))
-            api(project(":data:newsFeed"))
+            api(project(":data:newsfeed"))
+            // SavedArticleDao is a constructor param on the public SavedRepository.
+            api(project(":core:database"))
         }
     }
 }
