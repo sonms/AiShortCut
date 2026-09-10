@@ -12,9 +12,10 @@ kotlin {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
             // The sheet renders these domain types directly.
-            api(project(":data:hfTrending"))
-            api(project(":data:githubTrending"))
-            api(project(":data:newsFeed"))
+            api(project(":data:hftrending"))
+            api(project(":data:githubtrending"))
+            api(project(":data:newsfeed"))
+            api(project(":data:openrouter"))
         }
     }
 }

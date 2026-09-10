@@ -12,10 +12,11 @@ kotlin {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
             implementation(project(":core:translate"))
+            implementation(project(":presentation:feed"))
             implementation(project(":presentation:detail"))
-            implementation(project(":data:hfTrending"))
-            implementation(project(":data:githubTrending"))
-            implementation(project(":data:newsFeed"))
+            implementation(project(":data:hftrending"))
+            implementation(project(":data:githubtrending"))
+            implementation(project(":data:newsfeed"))
             implementation(project(":data:saved"))
         }
     }

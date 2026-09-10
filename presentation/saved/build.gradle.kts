@@ -11,8 +11,9 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:common"))
             implementation(project(":core:designsystem"))
+            implementation(project(":presentation:detail"))
             implementation(project(":data:saved"))
-            implementation(project(":data:newsFeed"))
+            implementation(project(":data:newsfeed"))
         }
     }
 }

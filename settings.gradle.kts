@@ -36,21 +36,24 @@ include(
     ":core:common",
     ":core:network",
     ":core:designsystem",
-    ":core:translate"
+    ":core:translate",
+    ":core:database"
 )
 
 // data
 include(
     ":data:home",
-    ":data:hfTrending",
-    ":data:githubTrending",
-    ":data:newsFeed",
+    ":data:hftrending",
+    ":data:githubtrending",
+    ":data:newsfeed",
+    ":data:openrouter",
     ":data:saved"
 )
 
 // presentation
 include(
     ":presentation:main",
+    ":presentation:feed",
     ":presentation:home",
     ":presentation:discover",
     ":presentation:saved",
