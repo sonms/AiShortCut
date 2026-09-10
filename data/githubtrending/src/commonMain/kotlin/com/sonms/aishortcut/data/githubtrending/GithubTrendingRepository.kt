@@ -1,6 +1,5 @@
 package com.sonms.aishortcut.data.githubtrending
 
-import com.sonms.aishortcut.core.network.createHttpClient
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -17,7 +16,7 @@ private const val SEARCH_ENDPOINT = "https://api.github.com/search/repositories"
 // ranked by stars -- i.e. new AI projects picking up traction fast. The
 // Search API allows this unauthenticated at 10 requests/minute.
 class GithubTrendingRepository(
-    private val httpClient: HttpClient = createHttpClient(),
+    private val httpClient: HttpClient,
 ) {
     suspend fun getTrendingRepos(limit: Int = 20, withinDays: Int = 30): List<TrendingRepo> {
         val since = (Clock.System.now() - withinDays.days).toString().substringBefore('T')

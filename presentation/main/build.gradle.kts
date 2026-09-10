@@ -17,11 +17,14 @@ kotlin {
 
             // Composition root: this module assembles the Koin graph, so it sees
             // every data module whose types it binds.
-            implementation(project(":data:hfTrending"))
-            implementation(project(":data:githubTrending"))
-            implementation(project(":data:newsFeed"))
+            implementation(project(":data:hftrending"))
+            implementation(project(":data:githubtrending"))
+            implementation(project(":data:newsfeed"))
+            implementation(project(":data:openrouter"))
             implementation(project(":data:saved"))
+            implementation(project(":core:network"))
             implementation(project(":core:translate"))
+            implementation(project(":core:database"))
         }
     }
 }
