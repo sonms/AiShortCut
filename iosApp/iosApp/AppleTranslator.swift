@@ -73,9 +73,9 @@ private struct TranslationBridge: ViewModifier {
                     let responses = try await session.translations(from: requests)
                     var byIndex: [Int: String] = [:]
                     for response in responses {
-                        if let index = Int(response.clientIdentifier) {
-                            byIndex[index] = response.targetText
-                        }
+                        guard let clientIdentifier = response.clientIdentifier,
+                              let index = Int(clientIdentifier) else { continue }
+                        byIndex[index] = response.targetText
                     }
                     let translated = job.texts.enumerated().map { index, original in
                         byIndex[index] ?? original

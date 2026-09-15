@@ -48,7 +48,7 @@ Material 3 bottom navigation, 3탭:
 ./gradlew :layer:name:build
 ```
 
-iOS는 `/iosApp`을 Xcode에서 열어서 실행합니다 (이 저장소 개발은 Windows/기타 환경에서 진행되어 iOS 빌드는 이 머신에서 직접 검증하지 못했습니다 — 로직은 `commonMain`에 두고 컴파일 확인까지만).
+iOS는 `/iosApp`을 Xcode에서 열어서 실행합니다. 빌드/실행 검증은 macOS에서 완료했습니다.
 
 ## TODO / 미완성
 
@@ -57,4 +57,3 @@ iOS는 `/iosApp`을 Xcode에서 열어서 실행합니다 (이 저장소 개발�
 - **GitHub API 레이트리밋**: 비인증 10 req/min이라 사용량이 늘면 곧 막힙니다. 인증 토큰 붙이는 문제는 아직 손대지 않았습니다.
 - **RSS 파서의 한계**: `FeedParser`는 정규식 기반이라 CDATA/기본 XML 엔티티 정도만 처리합니다. 이 두 파서가 못 다루는 형식의 피드가 새로 추가되면 깨질 수 있습니다.
 - **iOS 번역 미연동**: Apple Translation 프레임워크 쪽 Swift 구현체가 아직 없어서, iOS에서는 번역이 항상 원문 통과입니다.
-- **iOS 빌드 미검증**: 위에서 언급한 대로, iOS 타겟은 컴파일만 확인했고 실제 기기/시뮬레이터 실행 검증은 못 했습니다.
