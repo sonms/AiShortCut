@@ -1,5 +1,6 @@
 package com.sonms.aishortcut.presentation.detail
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -103,9 +106,9 @@ private fun ModelDetail(model: TrendingModel, openRouter: OpenRouterModel?, lang
         or.contextLength?.let { Meta(language.pick("컨텍스트", "Context"), formatTokens(it)) }
         formatPricePair(or.promptUsdPerMTokens, or.completionUsdPerMTokens, language)
             ?.let { Meta(language.pick("가격(1M 토큰)", "Price (1M tokens)"), it) }
-        or.intelligenceIndex?.let { Meta(language.pick("지능 지수", "Intelligence"), trimZero(it)) }
-        or.codingIndex?.let { Meta(language.pick("코딩 지수", "Coding"), trimZero(it)) }
-        or.agenticIndex?.let { Meta(language.pick("에이전트 지수", "Agentic"), trimZero(it)) }
+        or.intelligenceIndex?.let { BenchmarkBar(language.pick("지능 지수", "Intelligence"), it) }
+        or.codingIndex?.let { BenchmarkBar(language.pick("코딩 지수", "Coding"), it) }
+        or.agenticIndex?.let { BenchmarkBar(language.pick("에이전트 지수", "Agentic"), it) }
     }
 }
 
@@ -209,6 +212,35 @@ private fun MetaGroupHeader(text: String) {
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.primary,
     )
+}
+
+// A 0-100 OpenRouter/Artificial Analysis index as a horizontal bar, sharing
+// Meta's 92dp label column so it lines up with the rows above it.
+@Composable
+private fun BenchmarkBar(label: String, value: Double) {
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val barColor = MaterialTheme.colorScheme.primary
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.width(92.dp),
+        )
+        Canvas(Modifier.weight(1f).height(10.dp)) {
+            val radius = CornerRadius(size.height / 2)
+            drawRoundRect(trackColor, size = size, cornerRadius = radius)
+            val filledWidth = size.width * (value / 100.0).coerceIn(0.0, 1.0).toFloat()
+            if (filledWidth > 0f) {
+                drawRoundRect(barColor, size = Size(filledWidth, size.height), cornerRadius = radius)
+            }
+        }
+        Text(
+            trimZero(value),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.width(28.dp).padding(start = Spacing.xs),
+        )
+    }
 }
 
 // Fixed label column so the values line up (DESIGN.md "Data" style, tabular).

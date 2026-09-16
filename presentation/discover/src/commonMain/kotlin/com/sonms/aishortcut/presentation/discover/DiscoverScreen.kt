@@ -200,10 +200,12 @@ private fun BenchmarkPlaceholder(language: FeedLanguage) {
         Spacer(Modifier.height(Spacing.xs))
         Text(
             language.pick(
-                "MMLU, HumanEval 등 벤치마크 비교는 실제 데이터 연동 후 제공됩니다. " +
-                    "지금은 모델 상세에서 OpenRouter 지능·코딩 지수를 확인할 수 있습니다.",
-                "MMLU, HumanEval and other benchmark comparisons will arrive once real data " +
-                    "is wired up. For now, check a model's OpenRouter intelligence/coding index in its detail sheet.",
+                "MMLU, HumanEval 같은 개별 벤치마크 원본 수치는 무료로 제공하는 소스가 없어 " +
+                    "아직 볼 수 없습니다. 대신 OpenRouter가 제공하는 지능·코딩·에이전틱 지수는 " +
+                    "모델을 눌러 상세에서 그래프로 확인할 수 있습니다.",
+                "Raw per-benchmark scores like MMLU or HumanEval aren't available from any free " +
+                    "source yet. Tap a model to see its OpenRouter intelligence/coding/agentic " +
+                    "indices as a bar chart in the detail sheet.",
             ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
