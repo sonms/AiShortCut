@@ -12,6 +12,7 @@ import com.sonms.aishortcut.data.githubtrending.GithubTrendingRepository
 import com.sonms.aishortcut.data.githubtrending.TrendingRepo
 import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
 import com.sonms.aishortcut.data.hftrending.TrendingModel
+import com.sonms.aishortcut.data.home.HomeRepository
 import com.sonms.aishortcut.data.newsfeed.NewsArticle
 import com.sonms.aishortcut.data.newsfeed.NewsFeedRepository
 import com.sonms.aishortcut.data.saved.SavedRepository
@@ -48,6 +49,7 @@ class HomeViewModel(
     private val newsFeed: NewsFeedRepository,
     private val translator: Translator,
     private val saved: SavedRepository,
+    private val homeRepository: HomeRepository,
 ) : ViewModel() {
     var uiState by mutableStateOf<HomeUiState>(HomeUiState.Loading)
         private set
@@ -70,6 +72,7 @@ class HomeViewModel(
 
     init {
         load()
+        viewModelScope.launch { homeRepository.recordVisit() }
     }
 
     fun toggleSaved(article: NewsArticle) {

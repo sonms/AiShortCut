@@ -14,6 +14,7 @@ kotlin {
             implementation(project(":presentation:detail"))
             implementation(project(":data:saved"))
             implementation(project(":data:newsfeed"))
+            implementation(project(":data:hftrending"))
         }
     }
 }

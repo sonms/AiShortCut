@@ -14,10 +14,15 @@ import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
 import com.sonms.aishortcut.data.hftrending.TrendingModel
 import com.sonms.aishortcut.data.openrouter.OpenRouterModel
 import com.sonms.aishortcut.data.openrouter.OpenRouterRepository
+import com.sonms.aishortcut.data.saved.SavedRepository
 import com.sonms.aishortcut.presentation.feed.FeedLanguage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 sealed interface DiscoverUiState {
@@ -38,6 +43,7 @@ class DiscoverViewModel(
     private val githubTrending: GithubTrendingRepository,
     private val openRouter: OpenRouterRepository,
     private val translator: Translator,
+    private val saved: SavedRepository,
 ) : ViewModel() {
     var uiState by mutableStateOf<DiscoverUiState>(DiscoverUiState.Loading)
         private set
@@ -53,8 +59,16 @@ class DiscoverViewModel(
     var translations by mutableStateOf<Map<String, String>>(emptyMap())
         private set
 
+    val savedModelIds: StateFlow<Set<String>> = saved.models
+        .map { list -> list.mapTo(mutableSetOf()) { it.id } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
     init {
         load()
+    }
+
+    fun toggleSavedModel(model: TrendingModel) {
+        viewModelScope.launch { saved.toggle(model) }
     }
 
     fun load() {

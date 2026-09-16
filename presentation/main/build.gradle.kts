@@ -22,6 +22,7 @@ kotlin {
             implementation(project(":data:newsfeed"))
             implementation(project(":data:openrouter"))
             implementation(project(":data:saved"))
+            implementation(project(":data:home"))
             implementation(project(":core:network"))
             implementation(project(":core:translate"))
             implementation(project(":core:database"))

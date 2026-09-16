@@ -5,10 +5,16 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 
-@Database(entities = [SavedArticleEntity::class], version = 1, exportSchema = true)
+@Database(
+    entities = [SavedArticleEntity::class, HomeVisitEntity::class, SavedModelEntity::class],
+    version = 3,
+    exportSchema = true,
+)
 @ConstructedBy(AiShortCutDatabaseConstructor::class)
 abstract class AiShortCutDatabase : RoomDatabase() {
     abstract fun savedArticleDao(): SavedArticleDao
+    abstract fun homeVisitDao(): HomeVisitDao
+    abstract fun savedModelDao(): SavedModelDao
 }
 
 // Room's KSP processor generates the actual object per platform (KMP has no

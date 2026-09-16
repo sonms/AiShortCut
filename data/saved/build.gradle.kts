@@ -11,7 +11,8 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:common"))
             api(project(":data:newsfeed"))
-            // SavedArticleDao is a constructor param on the public SavedRepository.
+            api(project(":data:hftrending"))
+            // SavedArticleDao / SavedModelDao are constructor params on the public SavedRepository.
             api(project(":core:database"))
         }
     }

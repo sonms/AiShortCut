@@ -21,3 +21,8 @@ fun feedLocalizer(
         else -> text
     }
 }
+
+// For fixed UI labels (section headers, field names) that have no source text
+// to run through the translator -- just the two hand-written strings.
+fun FeedLanguage.pick(korean: String, english: String): String =
+    if (this == FeedLanguage.Korean) korean else english

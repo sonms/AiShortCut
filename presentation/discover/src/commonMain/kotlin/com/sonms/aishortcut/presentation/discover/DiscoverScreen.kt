@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sonms.aishortcut.core.designsystem.FeedCard
 import com.sonms.aishortcut.core.designsystem.ScreenHeader
 import com.sonms.aishortcut.core.designsystem.SectionHeader
@@ -42,12 +47,16 @@ import com.sonms.aishortcut.presentation.detail.DetailSheet
 import com.sonms.aishortcut.presentation.detail.DetailTarget
 import com.sonms.aishortcut.presentation.detail.formatTokens
 import com.sonms.aishortcut.presentation.detail.trimZero
+import com.sonms.aishortcut.presentation.feed.FeedLanguage
 import com.sonms.aishortcut.presentation.feed.LanguageToggle
 import com.sonms.aishortcut.presentation.feed.feedLocalizer
+import com.sonms.aishortcut.presentation.feed.pick
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DiscoverScreen(viewModel: DiscoverViewModel = koinViewModel()) {
+    val savedModelIds by viewModel.savedModelIds.collectAsStateWithLifecycle()
+
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(
             title = "Discover",
@@ -67,7 +76,9 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = koinViewModel()) {
             singleLine = true,
             shape = RoundedCornerShape(16.dp),
             leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-            placeholder = { Text("모델, 레포, 토픽 검색 (RAG, LoRA…)") },
+            placeholder = {
+                Text(viewModel.language.pick("모델, 레포, 토픽 검색 (RAG, LoRA…)", "Search models, repos, topics (RAG, LoRA…)"))
+            },
         )
         Spacer(Modifier.height(Spacing.sm))
 
@@ -78,14 +89,17 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = koinViewModel()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(state.message, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(Spacing.md))
-                    Button(onClick = viewModel::load) { Text("Retry") }
+                    Button(onClick = viewModel::load) { Text(viewModel.language.pick("다시 시도", "Retry")) }
                 }
             }
 
             is DiscoverUiState.Content -> Results(
                 content = state,
                 query = viewModel.query,
+                language = viewModel.language,
                 localize = feedLocalizer(viewModel.language, viewModel.translations),
+                savedModelIds = savedModelIds,
+                onToggleSavedModel = viewModel::toggleSavedModel,
             )
         }
     }
@@ -95,7 +109,10 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = koinViewModel()) {
 private fun Results(
     content: DiscoverUiState.Content,
     query: String,
+    language: FeedLanguage,
     localize: (String?) -> String?,
+    savedModelIds: Set<String>,
+    onToggleSavedModel: (TrendingModel) -> Unit,
 ) {
     val q = query.trim()
     val models = remember(content, q) {
@@ -117,10 +134,10 @@ private fun Results(
         ),
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        item { BenchmarkPlaceholder() }
+        item { BenchmarkPlaceholder(language) }
 
         if (models.isNotEmpty()) {
-            item { SectionHeader("모델") }
+            item { SectionHeader(language.pick("모델", "Models")) }
             items(models, key = { "model-${it.id}" }) { model ->
                 val enrichment = content.openRouter[model.id.lowercase()]
                 FeedCard(
@@ -128,12 +145,18 @@ private fun Results(
                         detail = DetailTarget.Model(model, enrichment)
                     },
                 ) {
-                    ModelRow(model, enrichment)
+                    ModelRow(
+                        model = model,
+                        openRouter = enrichment,
+                        language = language,
+                        saved = model.id in savedModelIds,
+                        onToggleSaved = { onToggleSavedModel(model) },
+                    )
                 }
             }
         }
         if (repos.isNotEmpty()) {
-            item { SectionHeader("리포지토리") }
+            item { SectionHeader(language.pick("리포지토리", "Repositories")) }
             items(repos, key = { "repo-${it.id}" }) { repo ->
                 FeedCard(modifier = Modifier.clickable { detail = DetailTarget.Repo(repo) }) {
                     RepoRow(repo, localize)
@@ -143,7 +166,7 @@ private fun Results(
         if (models.isEmpty() && repos.isEmpty()) {
             item {
                 Text(
-                    "\"$query\"에 대한 결과가 없습니다",
+                    language.pick("\"$query\"에 대한 결과가 없습니다", "No results for \"$query\""),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = Spacing.md),
@@ -156,6 +179,7 @@ private fun Results(
         DetailSheet(
             target = target,
             onDismiss = { detail = null },
+            language = language,
             localized = { localize(it) ?: it },
         )
     }
@@ -170,13 +194,17 @@ private fun TrendingRepo.matches(q: String): Boolean =
         topics.any { it.contains(q, ignoreCase = true) }
 
 @Composable
-private fun BenchmarkPlaceholder() {
+private fun BenchmarkPlaceholder(language: FeedLanguage) {
     FeedCard {
-        Text("벤치마크 그래프", style = MaterialTheme.typography.titleMedium)
+        Text(language.pick("벤치마크 그래프", "Benchmark graphs"), style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(Spacing.xs))
         Text(
-            "MMLU, HumanEval 등 벤치마크 비교는 실제 데이터 연동 후 제공됩니다. " +
-                "지금은 모델 상세에서 OpenRouter 지능·코딩 지수를 확인할 수 있습니다.",
+            language.pick(
+                "MMLU, HumanEval 등 벤치마크 비교는 실제 데이터 연동 후 제공됩니다. " +
+                    "지금은 모델 상세에서 OpenRouter 지능·코딩 지수를 확인할 수 있습니다.",
+                "MMLU, HumanEval and other benchmark comparisons will arrive once real data " +
+                    "is wired up. For now, check a model's OpenRouter intelligence/coding index in its detail sheet.",
+            ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -184,8 +212,23 @@ private fun BenchmarkPlaceholder() {
 }
 
 @Composable
-private fun ModelRow(model: TrendingModel, openRouter: OpenRouterModel?) {
-    Text(model.id, style = MaterialTheme.typography.titleMedium)
+private fun ModelRow(
+    model: TrendingModel,
+    openRouter: OpenRouterModel?,
+    language: FeedLanguage,
+    saved: Boolean,
+    onToggleSaved: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(model.id, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+        IconButton(onClick = onToggleSaved) {
+            Icon(
+                if (saved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = language.pick(if (saved) "저장 취소" else "저장", if (saved) "Unsave" else "Save"),
+                tint = if (saved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
     model.pipelineTag?.let {
         Spacer(Modifier.height(Spacing.xs))
         Text(
@@ -198,9 +241,9 @@ private fun ModelRow(model: TrendingModel, openRouter: OpenRouterModel?) {
         Spacer(Modifier.height(Spacing.sm))
         StatLine(
             parts = listOfNotNull(
-                or.contextLength?.let { "컨텍스트 ${formatTokens(it)}" },
-                or.intelligenceIndex?.let { "지능 ${trimZero(it)}" },
-                or.promptUsdPerMTokens?.let { "입력 $${trimZero(it)}/1M" },
+                or.contextLength?.let { "${language.pick("컨텍스트", "Context")} ${formatTokens(it)}" },
+                or.intelligenceIndex?.let { "${language.pick("지능", "Intelligence")} ${trimZero(it)}" },
+                or.promptUsdPerMTokens?.let { "${language.pick("입력", "Input")} $${trimZero(it)}/1M" },
             ),
             color = MaterialTheme.colorScheme.primary,
         )

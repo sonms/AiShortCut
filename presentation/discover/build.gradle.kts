@@ -17,6 +17,7 @@ kotlin {
             implementation(project(":data:hftrending"))
             implementation(project(":data:githubtrending"))
             implementation(project(":data:openrouter"))
+            implementation(project(":data:saved"))
         }
     }
 }

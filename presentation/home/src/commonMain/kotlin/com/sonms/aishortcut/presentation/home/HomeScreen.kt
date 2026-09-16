@@ -33,7 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,7 +78,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
 @Composable
 private fun Content(state: HomeUiState.Content, viewModel: HomeViewModel) {
     val language = viewModel.language
-    val savedLinks by viewModel.savedLinks.collectAsState()
+    val savedLinks by viewModel.savedLinks.collectAsStateWithLifecycle()
     var detail by remember { mutableStateOf<DetailTarget?>(null) }
 
     val localize = feedLocalizer(language, viewModel.translations)
@@ -116,6 +116,7 @@ private fun Content(state: HomeUiState.Content, viewModel: HomeViewModel) {
         DetailSheet(
             target = target,
             onDismiss = { detail = null },
+            language = language,
             localized = { localize(it) ?: it },
             saved = target is DetailTarget.Article && target.article.link in savedLinks,
             onToggleSaved = (target as? DetailTarget.Article)?.let { a -> { viewModel.toggleSaved(a.article) } },

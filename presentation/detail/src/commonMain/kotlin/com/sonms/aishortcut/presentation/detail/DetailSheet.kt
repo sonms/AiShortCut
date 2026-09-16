@@ -31,6 +31,8 @@ import com.sonms.aishortcut.data.githubtrending.TrendingRepo
 import com.sonms.aishortcut.data.hftrending.TrendingModel
 import com.sonms.aishortcut.data.newsfeed.NewsArticle
 import com.sonms.aishortcut.data.openrouter.OpenRouterModel
+import com.sonms.aishortcut.presentation.feed.FeedLanguage
+import com.sonms.aishortcut.presentation.feed.pick
 
 // What the sheet shows. `localized` lets the caller pass through the EN/KO
 // translation lookup it already has; identity by default.
@@ -57,6 +59,7 @@ private val DetailTarget.externalUrl: String
 fun DetailSheet(
     target: DetailTarget,
     onDismiss: () -> Unit,
+    language: FeedLanguage = FeedLanguage.Korean,
     localized: (String) -> String = { it },
     saved: Boolean = false,
     onToggleSaved: (() -> Unit)? = null,
@@ -71,38 +74,38 @@ fun DetailSheet(
             verticalArrangement = Arrangement.spacedBy(Spacing.xs),
         ) {
             when (target) {
-                is DetailTarget.Model -> ModelDetail(target.model, target.openRouter)
-                is DetailTarget.Repo -> RepoDetail(target.repo, localized)
-                is DetailTarget.Article -> ArticleDetail(target.article, localized, saved, onToggleSaved)
+                is DetailTarget.Model -> ModelDetail(target.model, target.openRouter, language)
+                is DetailTarget.Repo -> RepoDetail(target.repo, localized, language)
+                is DetailTarget.Article -> ArticleDetail(target.article, localized, saved, onToggleSaved, language)
             }
             Spacer(Modifier.height(Spacing.sm))
             OutlinedButton(
                 onClick = { uriHandler.openUri(target.externalUrl) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("원문 열기")
+                Text(language.pick("원문 열기", "Open original"))
             }
         }
     }
 }
 
 @Composable
-private fun ModelDetail(model: TrendingModel, openRouter: OpenRouterModel?) {
+private fun ModelDetail(model: TrendingModel, openRouter: OpenRouterModel?, language: FeedLanguage) {
     SheetTitle(model.id)
     Spacer(Modifier.height(Spacing.xs))
-    model.author?.let { Meta("작성자", it) }
-    model.pipelineTag?.let { Meta("분류", it) }
-    Meta("좋아요", model.likes.toString())
-    Meta("다운로드", model.downloads.toString())
+    model.author?.let { Meta(language.pick("작성자", "Author"), it) }
+    model.pipelineTag?.let { Meta(language.pick("분류", "Type"), it) }
+    Meta(language.pick("좋아요", "Likes"), model.likes.toString())
+    Meta(language.pick("다운로드", "Downloads"), model.downloads.toString())
 
     openRouter?.let { or ->
-        MetaGroupHeader("OpenRouter 제공")
-        or.contextLength?.let { Meta("컨텍스트", formatTokens(it)) }
-        formatPricePair(or.promptUsdPerMTokens, or.completionUsdPerMTokens)
-            ?.let { Meta("가격(1M 토큰)", it) }
-        or.intelligenceIndex?.let { Meta("지능 지수", trimZero(it)) }
-        or.codingIndex?.let { Meta("코딩 지수", trimZero(it)) }
-        or.agenticIndex?.let { Meta("에이전트 지수", trimZero(it)) }
+        MetaGroupHeader(language.pick("OpenRouter 제공", "From OpenRouter"))
+        or.contextLength?.let { Meta(language.pick("컨텍스트", "Context"), formatTokens(it)) }
+        formatPricePair(or.promptUsdPerMTokens, or.completionUsdPerMTokens, language)
+            ?.let { Meta(language.pick("가격(1M 토큰)", "Price (1M tokens)"), it) }
+        or.intelligenceIndex?.let { Meta(language.pick("지능 지수", "Intelligence"), trimZero(it)) }
+        or.codingIndex?.let { Meta(language.pick("코딩 지수", "Coding"), trimZero(it)) }
+        or.agenticIndex?.let { Meta(language.pick("에이전트 지수", "Agentic"), trimZero(it)) }
     }
 }
 
@@ -114,10 +117,10 @@ fun formatTokens(tokens: Int): String = when {
     else -> tokens.toString()
 }
 
-fun formatPricePair(prompt: Double?, completion: Double?): String? {
+fun formatPricePair(prompt: Double?, completion: Double?, language: FeedLanguage = FeedLanguage.Korean): String? {
     if (prompt == null && completion == null) return null
-    val p = prompt?.let { "입력 $${trimZero(it)}" }
-    val c = completion?.let { "출력 $${trimZero(it)}" }
+    val p = prompt?.let { "${language.pick("입력", "Input")} $${trimZero(it)}" }
+    val c = completion?.let { "${language.pick("출력", "Output")} $${trimZero(it)}" }
     return listOfNotNull(p, c).joinToString(" / ")
 }
 
@@ -126,7 +129,7 @@ fun trimZero(value: Double): String =
     if (value % 1.0 == 0.0) value.toLong().toString() else value.toString()
 
 @Composable
-private fun RepoDetail(repo: TrendingRepo, localized: (String) -> String) {
+private fun RepoDetail(repo: TrendingRepo, localized: (String) -> String, language: FeedLanguage) {
     SheetTitle(repo.fullName)
     repo.description?.let {
         Spacer(Modifier.height(Spacing.xs))
@@ -137,10 +140,10 @@ private fun RepoDetail(repo: TrendingRepo, localized: (String) -> String) {
         )
     }
     Spacer(Modifier.height(Spacing.xs))
-    Meta("스타", repo.stars.toString())
-    Meta("포크", repo.forks.toString())
-    repo.language?.let { Meta("언어", it) }
-    if (repo.topics.isNotEmpty()) Meta("토픽", repo.topics.joinToString(" · "))
+    Meta(language.pick("스타", "Stars"), repo.stars.toString())
+    Meta(language.pick("포크", "Forks"), repo.forks.toString())
+    repo.language?.let { Meta(language.pick("언어", "Language"), it) }
+    if (repo.topics.isNotEmpty()) Meta(language.pick("토픽", "Topics"), repo.topics.joinToString(" · "))
 }
 
 @Composable
@@ -149,6 +152,7 @@ private fun ArticleDetail(
     localized: (String) -> String,
     saved: Boolean,
     onToggleSaved: (() -> Unit)?,
+    language: FeedLanguage,
 ) {
     SheetTitle(localized(article.title))
     Row(
@@ -173,7 +177,7 @@ private fun ArticleDetail(
                     else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    if (saved) "저장됨" else "저장",
+                    language.pick(if (saved) "저장됨" else "저장", if (saved) "Saved" else "Save"),
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(start = Spacing.xs),
                 )

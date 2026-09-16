@@ -18,6 +18,7 @@ kotlin {
             implementation(project(":data:githubtrending"))
             implementation(project(":data:newsfeed"))
             implementation(project(":data:saved"))
+            implementation(project(":data:home"))
         }
     }
 }

@@ -2,6 +2,7 @@ package com.sonms.aishortcut.presentation.saved
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sonms.aishortcut.data.hftrending.TrendingModel
 import com.sonms.aishortcut.data.newsfeed.NewsArticle
 import com.sonms.aishortcut.data.saved.SavedRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +17,14 @@ class SavedViewModel(
     val articles: StateFlow<List<NewsArticle>> =
         saved.articles.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val models: StateFlow<List<TrendingModel>> =
+        saved.models.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     fun remove(article: NewsArticle) {
         viewModelScope.launch { saved.toggle(article) }
+    }
+
+    fun remove(model: TrendingModel) {
+        viewModelScope.launch { saved.toggle(model) }
     }
 }

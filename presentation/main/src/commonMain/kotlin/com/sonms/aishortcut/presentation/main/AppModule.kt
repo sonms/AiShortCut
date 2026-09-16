@@ -7,6 +7,7 @@ import com.sonms.aishortcut.core.translate.Translator
 import com.sonms.aishortcut.core.translate.createTranslator
 import com.sonms.aishortcut.data.githubtrending.GithubTrendingRepository
 import com.sonms.aishortcut.data.hftrending.HfTrendingRepository
+import com.sonms.aishortcut.data.home.HomeRepository
 import com.sonms.aishortcut.data.newsfeed.NewsFeedRepository
 import com.sonms.aishortcut.data.openrouter.OpenRouterRepository
 import com.sonms.aishortcut.data.saved.SavedRepository
@@ -27,12 +28,15 @@ val appModule = module {
     // One Room database for the whole app; repositories take the DAO they need.
     single { createDatabase() }
     single { get<AiShortCutDatabase>().savedArticleDao() }
+    single { get<AiShortCutDatabase>().homeVisitDao() }
+    single { get<AiShortCutDatabase>().savedModelDao() }
     single { HfTrendingRepository(get()) }
     single { GithubTrendingRepository(get()) }
     single { NewsFeedRepository(get()) }
     single { OpenRouterRepository(get()) }
-    single { SavedRepository(get()) }
-    viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
-    viewModel { DiscoverViewModel(get(), get(), get(), get()) }
+    single { SavedRepository(get(), get()) }
+    single { HomeRepository(get()) }
+    viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { DiscoverViewModel(get(), get(), get(), get(), get()) }
     viewModel { SavedViewModel(get()) }
 }

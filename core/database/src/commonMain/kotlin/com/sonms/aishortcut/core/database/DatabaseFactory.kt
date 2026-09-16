@@ -12,4 +12,7 @@ internal expect fun databaseBuilder(): RoomDatabase.Builder<AiShortCutDatabase>
 fun createDatabase(): AiShortCutDatabase =
     databaseBuilder()
         .setDriver(BundledSQLiteDriver())
+        // Pre-release, single-developer app (see CLAUDE.md) -- no user data to
+        // preserve across schema bumps yet, so skip writing real Migrations.
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
