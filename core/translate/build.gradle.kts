@@ -11,10 +11,6 @@ plugins {
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 kotlin {
-    android {
-        namespace = "com.sonms.aishortcut.core.translate"
-    }
-
     sourceSets {
         androidMain.dependencies {
             implementation(libs.findLibrary("mlkit-translate").get())

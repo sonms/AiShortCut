@@ -3,10 +3,6 @@ plugins {
 }
 
 kotlin {
-    android {
-        namespace = "com.sonms.aishortcut.presentation.discover"
-    }
-
     sourceSets {
         commonMain.dependencies {
             api(project(":core:common"))

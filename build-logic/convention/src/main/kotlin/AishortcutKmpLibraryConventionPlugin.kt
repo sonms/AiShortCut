@@ -41,6 +41,7 @@ class AishortcutKmpLibraryConventionPlugin : Plugin<Project> {
                 // to be looked up by name instead of written as `android { ... }`
                 // the way a build.gradle.kts script can.
                 (this as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryTarget>("android") {
+                    namespace = target.aishortcutNamespace()
                     compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
                     minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
 

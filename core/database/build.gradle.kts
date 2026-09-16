@@ -16,10 +16,6 @@ room {
 }
 
 kotlin {
-    android {
-        namespace = "com.sonms.aishortcut.core.database"
-    }
-
     sourceSets {
         commonMain.dependencies {
             api(project(":core:common"))

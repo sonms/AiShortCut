@@ -11,10 +11,6 @@ plugins {
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 kotlin {
-    android {
-        namespace = "com.sonms.aishortcut.core.network"
-    }
-
     sourceSets {
         commonMain.dependencies {
             api(libs.findLibrary("ktor-client-core").get())

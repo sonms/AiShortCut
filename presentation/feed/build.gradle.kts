@@ -3,10 +3,6 @@ plugins {
 }
 
 kotlin {
-    android {
-        namespace = "com.sonms.aishortcut.presentation.feed"
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:designsystem"))
